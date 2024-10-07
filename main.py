@@ -37,7 +37,6 @@ class App:
             print("Error: Camera not accessible.")
             exit(1)
         
-        # Set camera resolution to its maximum available
         self.frame_width = int(self.CAM.get(cv.CAP_PROP_FRAME_WIDTH))
         self.frame_height = int(self.CAM.get(cv.CAP_PROP_FRAME_HEIGHT))
         
@@ -50,13 +49,13 @@ class App:
         self.input_text = ""
         self.show_input = False
         self.mode = 'capture'
-        self.status_text = ""  # New attribute for status text
+        self.status_text = ""
         self.create_buttons()
         self.embeddings_dict = self.load_embeddings()
         self.cam()
 
     def load_embeddings(self):
-        filepath = 'data/fewshot/tablet/embeddings.pkl'
+        filepath = './data/embeddings.pkl'
         if os.path.exists(filepath):
             with open(filepath, 'rb') as file:
                 return pickle.load(file)
@@ -64,13 +63,12 @@ class App:
             return {}
 
     def save_embeddings(self):
-        filepath = 'data/fewshot/tablet/embeddings.pkl'
+        filepath = './data/embeddings.pkl'
         with open(filepath, 'wb') as file:
             pickle.dump(self.embeddings_dict, file)
         print("Embeddings saved to embeddings.pkl")
 
     def create_buttons(self):
-        # Adjust button positions relative to the full screen dimensions
         self.button_rects = {
             "NEW CLASS": (self.frame_width - self.button_width - self.margin, self.margin,
                      self.frame_width - self.margin, self.margin + self.button_height),
@@ -97,7 +95,6 @@ class App:
             self.frame = cv.flip(self.frame, 1)
             hands, self.frame = self.det.findHands(self.frame, flipType=False)
 
-            # Draw buttons
             for label, rect in self.button_rects.items():
                 x1, y1, x2, y2 = rect
                 cv.rectangle(self.frame, (x1, y1), (x2, y2), self.color, -1)
@@ -106,7 +103,7 @@ class App:
             if hands:
                 hand = hands[0]
                 lmList = hand['lmList']
-                x, y = lmList[8][0], lmList[8][1]  # Index finger tip coordinates
+                x, y = lmList[8][0], lmList[8][1]
 
                 for label, rect in self.button_rects.items():
                     x1, y1, x2, y2 = rect
